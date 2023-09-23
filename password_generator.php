@@ -2,24 +2,28 @@
 
 interface RandomPasswordGeneratorInterface
 {
-    public function start(): void;
+    public function start();
 }
 
-class RandomPasswordGenerator implements RandomPasswordGeneratorInterface
+class RandomPasswordGenerator extends Thread implements RandomPasswordGeneratorInterface
 {
-    private const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
+    const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
 
-    private const DIGITS = '0123456789';
+    const DIGITS = '0123456789';
 
-    private const FILE_NAME = 'passwords.txt';
+    const FILE_NAME = 'passwords.txt';
 
-    public function __construct(
-        private readonly int $interval,
-        private readonly int $passwordLength = 12
-    ) {
+    private $interval;
+
+    private $passwordLength;
+
+    public function __construct(int $interval, int $passwordLength = 12)
+    {
+        $this->interval = $interval;
+        $this->passwordLength = $passwordLength;
     }
 
-    public function start(): void
+    public function run()
     {
         while (true) {
             $this->saveToFile($this->generatePassword());
@@ -27,7 +31,7 @@ class RandomPasswordGenerator implements RandomPasswordGeneratorInterface
         }
     }
 
-    private function generatePassword(): string
+    private function generatePassword()
     {
         $password = '';
 
@@ -45,7 +49,7 @@ class RandomPasswordGenerator implements RandomPasswordGeneratorInterface
         return $allChars[random_int(0, strlen($allChars) - 1)];
     }
 
-    private function saveToFile(string $password): void
+    private function saveToFile(string $password)
     {
         $filePath = __DIR__ . DIRECTORY_SEPARATOR . self::FILE_NAME;
 
@@ -57,13 +61,16 @@ class RandomPasswordGenerator implements RandomPasswordGeneratorInterface
     }
 }
 
-// Create an instance
-$passwordGenerator = new RandomPasswordGenerator(20);
+$stack = [];
+$threadsAmount = 5;
 
-// Start
-try {
-    $passwordGenerator->start();
-} catch (Throwable $e) {
-    // Handle error
-    echo $e->getMessage();
+// Initiate multiple thread
+foreach (range(1, $threadsAmount) as $step) {
+    $stack[] = new RandomPasswordGenerator(20);
 }
+
+// Start the threads
+foreach ($stack as $thread) {
+    $thread->start();
+}
+
