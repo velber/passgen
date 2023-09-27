@@ -8,17 +8,26 @@ interface RandomPasswordGeneratorInterface
 class RandomPasswordGenerator implements RandomPasswordGeneratorInterface
 {
     private const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
-
     private const DIGITS = '0123456789';
-
     private const FILE_NAME = 'passwords.txt';
 
+    /**
+     * Create the random password generator.
+     *
+     * @param integer $interval
+     * @param integer $passwordLength
+     */
     public function __construct(
         private readonly int $interval,
         private readonly int $passwordLength = 12
     ) {
     }
 
+    /**
+     * Start the random password generation.
+     *
+     * @return void
+     */
     public function start(): void
     {
         while (true) {
@@ -27,6 +36,11 @@ class RandomPasswordGenerator implements RandomPasswordGeneratorInterface
         }
     }
 
+    /**
+     * Generate random password.
+     *
+     * @return string
+     */
     private function generatePassword(): string
     {
         $password = '';
@@ -38,6 +52,11 @@ class RandomPasswordGenerator implements RandomPasswordGeneratorInterface
         return $password;
     }
 
+    /**
+     * Get random char.
+     *
+     * @return void
+     */
     private function getRandomChar()
     {
         $allChars = self::LETTERS . strtoupper(self::LETTERS) . self::DIGITS;
@@ -45,6 +64,13 @@ class RandomPasswordGenerator implements RandomPasswordGeneratorInterface
         return $allChars[random_int(0, strlen($allChars) - 1)];
     }
 
+    /**
+     * Appends the password to the file.
+     *
+     * @param string $password
+     * @throws Exception
+     * @return void
+     */
     private function saveToFile(string $password): void
     {
         $filePath = __DIR__ . DIRECTORY_SEPARATOR . self::FILE_NAME;
